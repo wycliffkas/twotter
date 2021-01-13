@@ -1,7 +1,7 @@
 <template>
-<div id="app">
-  <UserProfile />
-</div>
+  <div id="app">
+    <UserProfile />
+  </div>
 </template>
 
 <script>
@@ -13,13 +13,13 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
   min-height: 100vh;
-  background-color: #F3F5FA;
+  background-color: #f3f5fa;
 }
 </style>
