@@ -1,26 +1,32 @@
 <template>
   <div class="user-profile">
     <div class="user-profile__user-panel">
-      <h1 class="user-profile__username">@{{ user.username }}</h1>
-      <div class="user-profile__admin-badge" v-if="user.isAdmin">
+      <h1 class="user-profile__username">@{{ state.user.username }}</h1>
+      <div class="user-profile__admin-badge" v-if="state.user.isAdmin">
         Admin
       </div>
       <div class="user-profile__admin-badge" v-else>
         Not Admin
       </div>
       <div class="user-profile__follower-count">
-        <strong>Followers: </strong> {{ followers }}
+        <strong>Followers: </strong> {{ state.followers }}
       </div>
-      <form class="user-profile__create-twoot" @submit.prevent="createNewTwoot" :class="{ '--exceeded' : maxLength > 180 }">
-        <label for="newTwoot"><strong>New Twoot</strong> ({{maxLength}}/ 180)</label>
-        <textarea id="newTwoot" rows="4" v-model="newTwootContent" />
+      <form
+        class="user-profile__create-twoot"
+        @submit.prevent="createNewTwoot"
+        :class="{ '--exceeded': twootCount > 180 }"
+      >
+        <label for="newTwoot"
+          ><strong>New Twoot</strong> ({{ twootCount }}/ 180)</label
+        >
+        <textarea id="newTwoot" rows="4" v-model="state.newTwootContent" />
 
         <div class="user-profile__create-twoot-type">
           <label for="newTwoot"><strong>Type:</strong></label>
-          <select id="newTwootType" v-model="selectedTwootType">
+          <select id="newTwootType" v-model="state.selectedTwootType">
             <option
               :value="option.value"
-              v-for="(option, index) in twootTypes"
+              v-for="(option, index) in state.twootTypes"
               :key="index"
             >
               {{ option.name }}
@@ -35,9 +41,9 @@
     <div class="user-profile__twoots-wrapper">
       <TwootItem
         class="user-profile__twoots"
-        v-for="twoot in user.twoots"
+        v-for="twoot in state.user.twoots"
         :key="twoot.id"
-        :username="user.username"
+        :username="state.user.username"
         :twoot="twoot"
         @favourite="toggleFavourited"
       />
@@ -47,12 +53,15 @@
 
 <script>
 import TwootItem from "../components/TwootItem";
+import {reactive, computed, onMounted} from "vue"
 
 export default {
   name: "UserProfile",
   components: { TwootItem },
-  data() {
-    return {
+
+  setup() {
+
+    const state = reactive({
       newTwootContent: "",
       selectedTwootType: "instant",
       twootTypes: [
@@ -72,41 +81,97 @@ export default {
           { id: 2, content: "Dont forget to subscribe" },
         ],
       },
-    };
-  },
-  watch: {
-    followers(newFollowerCount, oldFollowerCount) {
-      if (oldFollowerCount < newFollowerCount) {
-        console.log(`${this.user.username} has gained a follower!`);
-      }
-    },
-  },
-  computed: {
-    maxLength() {
-      return this.newTwootContent.length
+    })
+
+    const twootCount = computed(() => state.newTwootContent.length)
+
+    const followUser = () => {
+      state.followers++;
     }
-  },
-  methods: {
-    followUser() {
-      this.followers++;
-    },
-    toggleFavourited(id) {
+
+    const toggleFavourited = (id) => {
       console.log(`Favourited tweet #${id}`);
-    },
-    createNewTwoot() {
-      if (this.newTwootContent && this.selectedTwootType !== "draft") {
-        this.user.twoots.unshift({
-          id: this.user.twoots.length + 1,
-          content: this.newTwootContent,
+    }
+
+    const createNewTwoot = () => {
+      if (state.newTwootContent && state.selectedTwootType !== "draft") {
+        state.user.twoots.unshift({
+          id: state.user.twoots.length + 1,
+          content: state.newTwootContent,
         });
 
-        this.newTwootContent = "";
+        state.newTwootContent = "";
       }
-    },
-  },
-  mounted() {
-    this.followUser();
-  },
+    }
+
+    onMounted(followUser)
+
+    return {
+      state,
+      twootCount,
+      followUser,
+      toggleFavourited,
+      createNewTwoot
+    }
+  }
+
+
+  // data() {
+  //   return {
+  //     newTwootContent: "",
+  //     selectedTwootType: "instant",
+  //     twootTypes: [
+  //       { value: "draft", name: "Draft" },
+  //       { value: "instant", name: "Instant Twoot" },
+  //     ],
+  //     followers: 0,
+  //     user: {
+  //       id: 1,
+  //       username: "Wyco",
+  //       firstName: "Wycliff",
+  //       lastName: "Kas",
+  //       email: "w4wycliff@gmail.com",
+  //       isAdmin: false,
+  //       twoots: [
+  //         { id: 1, content: "Twitter is amazing" },
+  //         { id: 2, content: "Dont forget to subscribe" },
+  //       ],
+  //     },
+  //   };
+  // },
+  // watch: {
+  //   followers(newFollowerCount, oldFollowerCount) {
+  //     if (oldFollowerCount < newFollowerCount) {
+  //       console.log(`${this.user.username} has gained a follower!`);
+  //     }
+  //   },
+  // },
+  // computed: {
+  //   maxLength() {
+  //     return this.newTwootContent.length
+  //   }
+  // },
+  // methods: {
+  //   followUser() {
+  //     this.followers++;
+  //   },
+  //   toggleFavourited(id) {
+  //     console.log(`Favourited tweet #${id}`);
+  //   },
+  //   createNewTwoot() {
+  //     if (this.newTwootContent && this.selectedTwootType !== "draft") {
+  //       this.user.twoots.unshift({
+  //         id: this.user.twoots.length + 1,
+  //         content: this.newTwootContent,
+  //       });
+
+  //       this.newTwootContent = "";
+  //     }
+  //   },
+  // },
+  // mounted() {
+  //   this.followUser();
+  // },
 };
 </script>
 
@@ -147,7 +212,7 @@ export default {
 
       &.--exceeded {
         color: red;
-        
+
         button {
           background-color: red;
           border: none;
