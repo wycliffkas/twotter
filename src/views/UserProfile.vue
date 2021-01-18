@@ -52,14 +52,19 @@
 </template>
 
 <script>
-import TwootItem from "../components/TwootItem";
-import {reactive, computed, onMounted} from "vue"
+import { reactive, computed, onMounted } from "vue";
+import TwootItem from "@/components/TwootItem";
+import { useRoute } from "vue-router";
+import { users } from "../assets/users";
 
 export default {
   name: "UserProfile",
   components: { TwootItem },
 
   setup() {
+    const route = useRoute();
+
+    const userId = computed(() => route.params.userId);
 
     const state = reactive({
       newTwootContent: "",
@@ -69,29 +74,18 @@ export default {
         { value: "instant", name: "Instant Twoot" },
       ],
       followers: 0,
-      user: {
-        id: 1,
-        username: "Wyco",
-        firstName: "Wycliff",
-        lastName: "Kas",
-        email: "w4wycliff@gmail.com",
-        isAdmin: false,
-        twoots: [
-          { id: 1, content: "Twitter is amazing" },
-          { id: 2, content: "Dont forget to subscribe" },
-        ],
-      },
-    })
+      user: users[userId.value - 1] || users[0],
+    });
 
-    const twootCount = computed(() => state.newTwootContent.length)
+    const twootCount = computed(() => state.newTwootContent.length);
 
     const followUser = () => {
       state.followers++;
-    }
+    };
 
     const toggleFavourited = (id) => {
       console.log(`Favourited tweet #${id}`);
-    }
+    };
 
     const createNewTwoot = () => {
       if (state.newTwootContent && state.selectedTwootType !== "draft") {
@@ -102,76 +96,19 @@ export default {
 
         state.newTwootContent = "";
       }
-    }
+    };
 
-    onMounted(followUser)
+    onMounted(followUser);
 
     return {
       state,
       twootCount,
+      userId,
       followUser,
       toggleFavourited,
-      createNewTwoot
-    }
-  }
-
-
-  // data() {
-  //   return {
-  //     newTwootContent: "",
-  //     selectedTwootType: "instant",
-  //     twootTypes: [
-  //       { value: "draft", name: "Draft" },
-  //       { value: "instant", name: "Instant Twoot" },
-  //     ],
-  //     followers: 0,
-  //     user: {
-  //       id: 1,
-  //       username: "Wyco",
-  //       firstName: "Wycliff",
-  //       lastName: "Kas",
-  //       email: "w4wycliff@gmail.com",
-  //       isAdmin: false,
-  //       twoots: [
-  //         { id: 1, content: "Twitter is amazing" },
-  //         { id: 2, content: "Dont forget to subscribe" },
-  //       ],
-  //     },
-  //   };
-  // },
-  // watch: {
-  //   followers(newFollowerCount, oldFollowerCount) {
-  //     if (oldFollowerCount < newFollowerCount) {
-  //       console.log(`${this.user.username} has gained a follower!`);
-  //     }
-  //   },
-  // },
-  // computed: {
-  //   maxLength() {
-  //     return this.newTwootContent.length
-  //   }
-  // },
-  // methods: {
-  //   followUser() {
-  //     this.followers++;
-  //   },
-  //   toggleFavourited(id) {
-  //     console.log(`Favourited tweet #${id}`);
-  //   },
-  //   createNewTwoot() {
-  //     if (this.newTwootContent && this.selectedTwootType !== "draft") {
-  //       this.user.twoots.unshift({
-  //         id: this.user.twoots.length + 1,
-  //         content: this.newTwootContent,
-  //       });
-
-  //       this.newTwootContent = "";
-  //     }
-  //   },
-  // },
-  // mounted() {
-  //   this.followUser();
-  // },
+      createNewTwoot,
+    };
+  },
 };
 </script>
 
