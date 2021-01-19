@@ -1,16 +1,29 @@
 <template>
-  <div id="app">
-    <UserProfile />
+  <div id="nav">
+    <router-link to="/">Home</router-link> |
+    <router-link to="/about">About</router-link>
   </div>
+  <div v-if="user">
+    {{user.username}}
+  </div>
+  <router-view/>
 </template>
 
 <script>
-import UserProfile from "./components/UserProfile";
-
+import { computed } from 'vue';
+import { useStore } from "vuex"
 export default {
   name: "App",
-  components: { UserProfile },
-};
+  setup() {
+    const store = useStore();
+    const user = computed(() => store.state.User.user)
+
+    return {
+      user
+    }
+  }
+  
+}
 </script>
 
 <style lang="scss">
@@ -18,8 +31,20 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-align: center;
   color: #2c3e50;
-  min-height: 100vh;
-  background-color: #f3f5fa;
+}
+
+#nav {
+  padding: 30px;
+
+  a {
+    font-weight: bold;
+    color: #2c3e50;
+
+    &.router-link-exact-active {
+      color: #42b983;
+    }
+  }
 }
 </style>
